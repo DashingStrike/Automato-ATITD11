@@ -84,6 +84,28 @@ function safeDrag(sourceX, sourceY, destX, destY)
 end
 
 -------------------------------------------------------------------------------
+-- safeScroll(x, y, steps)
+--
+-- Move the mouse to x,y and scroll the wheel
+--
+-- x, y -- Point to click
+-- steps -- positive value rolls the wheel forward (away from the user)
+--       -- negative value rolls the wheel backward (toward the user)
+-- safeScroll(100,100,-12)
+-------------------------------------------------------------------------------
+
+function safeScroll(x, y, steps)
+  --This version includes required changes to the srMouseWheel
+  lsRequireVersion(2,73);
+
+  if not x or not y or not steps then
+    error("Incorrect number of arguments for safeScroll()");
+  end
+  safeBegin();
+  return srMouseWheel(x, y, steps);
+end
+
+-------------------------------------------------------------------------------
 -- clickPoint(point, offsetX, offsetY, rightClick)
 --
 -- Click one point with an offset
