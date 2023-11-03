@@ -461,8 +461,10 @@ function eatOnion()
     if not buffed then
       srReadScreen();
       local consumeOnion = srFindImage("consume.png")
-      safeClick(consumeOnion[0],consumeOnion[1]);
-      waitForImage("stats/enduranceBuff.png", 5000, "Waiting for Endurance Buff icon")
+        if consumeOnion ~= nil then
+          safeClick(consumeOnion[0],consumeOnion[1]);
+          waitForImage("stats/enduranceBuff.png", 2500, "Waiting for Endurance Buff icon")
+        end
     end
 end
 
@@ -714,135 +716,138 @@ function sporePaper()
 end
 
 function doTasks()
-    didTask = false;
-    for i = 1, 4 do
-        curTask = items[i][tasks[i]];
-        if curTask ~= "" then
-            srReadScreen();
-            statImg = srFindImage("stats/" .. statNames[i] .. ".png");
-            if statTimer[i] ~= nil then
-                timeDiff = lsGetTimer() - statTimer[i];
-            else
-                timeDiff = 999999999;
-            end
-            local delay = 1400;
-            if lagBound[curTask] then
-                delay = 3000;
-            end
-            if not statImg and timeDiff > delay then
-                --check for special cases, like flax.
-                lsPrint(10, 10, 0, 0.7, 0.7, 0xB0B0B0ff, "Working on " .. curTask);
-                lsDoFrame();
-
-                if autoOnion then
-                  eatOnion();
-                end
-
-                if curTask == "Dig Hole" then
-                  digHole();
-                elseif curTask == "Tinder" then
-                  carve(curTask);
-                elseif curTask == "Rawhide Strips" then
-                  carve(curTask);
-                elseif curTask == "Wooden Dowsing Rod" then
-                  carve(curTask);
-                elseif curTask == "Slate Shovel" then
-                  carve(curTask);
-                elseif curTask == "Long Sharp Stick" then
-                  carve(curTask);
-                elseif curTask == "Sharpened Stick" then
-                  carve(curTask);
-                elseif curTask == "Barrel Tap" then
-                  carve(curTask);
-                elseif curTask == "Bottle Stopper" then
-                  carve(curTask);
-                elseif curTask == "Crudely Carved Handle" then
-                  carve(curTask);
-                elseif curTask == "Large Crude Handle" then
-                  carve(curTask);
-                elseif curTask == "Personal Chit" then
-                  carve(curTask);
-                elseif curTask == "Flint Hammer" then
-                  carve(curTask);
-                elseif curTask == "Flint Hatchet" then
-                  carve(curTask);
-                elseif curTask == "Flint Chisel" then
-                  carve(curTask);
-                elseif curTask == "Heavy Mallet" then
-                  carve(curTask);
-                elseif curTask == "Wooden Peg" then
-                  carve(curTask);
-                elseif curTask == "Wooden Pestle" then
-                  carve(curTask);
-                elseif curTask == "Clay Lamp" then
-                  carve(curTask);
-                elseif curTask == "Tackle Block" then
-                  carve(curTask);
-                elseif curTask == "Wooden Cog" then
-                  carve(curTask);
-                elseif curTask == "Flax Comb" then
-                  combFlax();
-                elseif curTask == "Hackling Rake" then
-                  hacklingRake();
-                elseif curTask == "Oil (Flax Seed)" then
-                  flaxOil();
-                elseif curTask == "Weave Canvas" then
-                  weave("Canvas");
-                elseif curTask == "Weave Linen" then
-                  weave("Linen");
-                elseif curTask == "Recycle Tattered Sail" then
-                  weave("TatteredSail");
-                elseif curTask == "Weave Wool Cloth" then
-                  weave("Wool");
-                elseif curTask == "Weave Papy Basket" then
-                  weave("Basket");
-                elseif curTask == "Weave Silk" then
-                  weave("Silk");
-                elseif curTask == "Limestone" then
-                  gather("Limestone");
-                elseif curTask == "Dirt" then
-                  gather("Dirt");
-                elseif curTask == "Barrel Grinder" then
-                  grindMetal();
-                elseif curTask == "Churn Butter" then
-                  churnButter();
-                elseif curTask == "Stir Cement" then
-                  stirCement();
-                elseif curTask == "Search Rotten Wood" then
-                  searchRottenWood();
-                elseif curTask == "Excavate Blocks" then
-                  excavateBlocks();
-                elseif curTask == "Push Pyramid" then
-                  pyramidPush();
-                elseif curTask == "Tap Rods" then
-                  tapRods();
-                elseif curTask == "Wet Paper" then
-                  wetPaper();
-                elseif curTask == "Spore Paper" then
-                  sporePaper();
-                else
-                  clickText(findText(textLookup[curTask]));
-                end
-                statTimer[i] = lsGetTimer();
-                didTask = true;
-            end
-        end
-    end
-    if didTask == false then
-        lsPrint(10, 10, 0, 0.7, 0.7, 0xB0B0B0ff, "Waiting for task to be ready.");
-
-        if lsButtonText(lsScreenX - 110, lsScreenY - 30, z, 100, 0xFFFFFFff,
-            "End script") then
-            error "Clicked End Script button";
-        end
-
+  didTask = false;
+  for i = 1, 4 do
+    curTask = items[i][tasks[i]];
+    if curTask ~= "" then
+      srReadScreen();
+      statImg = srFindImage("stats/" .. statNames[i] .. ".png");
+      if statTimer[i] ~= nil then
+        timeDiff = lsGetTimer() - statTimer[i];
+      else
+        timeDiff = 999999999;
+      end
+      local delay = 1400;
+      if lagBound[curTask] then
+        delay = 3000;
+      end
+      if not statImg and timeDiff > delay then
+        --check for special cases, like flax.
+        lsPrint(10, 10, 0, 0.7, 0.7, 0xB0B0B0ff, "Working on " .. curTask);
         lsDoFrame();
-    else
-        srReadScreen();
-        --closeEmptyAndErrorWindows();
-        closePopUp();
-        lsSleep(per_tick);
+
+        if autoOnion then
+          eatOnion();
+        end
+
+        if curTask == "Dig Hole" then
+          digHole();
+        elseif curTask == "Tinder" then
+          carve(curTask);
+        elseif curTask == "Rawhide Strips" then
+          carve(curTask);
+        elseif curTask == "Wooden Dowsing Rod" then
+          carve(curTask);
+        elseif curTask == "Slate Shovel" then
+          carve(curTask);
+        elseif curTask == "Long Sharp Stick" then
+          carve(curTask);
+        elseif curTask == "Sharpened Stick" then
+          carve(curTask);
+        elseif curTask == "Barrel Tap" then
+          carve(curTask);
+        elseif curTask == "Bottle Stopper" then
+          carve(curTask);
+        elseif curTask == "Crudely Carved Handle" then
+          carve(curTask);
+        elseif curTask == "Large Crude Handle" then
+          carve(curTask);
+        elseif curTask == "Personal Chit" then
+          carve(curTask);
+        elseif curTask == "Flint Hammer" then
+          carve(curTask);
+        elseif curTask == "Flint Hatchet" then
+          carve(curTask);
+        elseif curTask == "Flint Chisel" then
+          carve(curTask);
+        elseif curTask == "Heavy Mallet" then
+          carve(curTask);
+        elseif curTask == "Wooden Peg" then
+          carve(curTask);
+        elseif curTask == "Wooden Pestle" then
+          carve(curTask);
+        elseif curTask == "Clay Lamp" then
+          carve(curTask);
+        elseif curTask == "Tackle Block" then
+          carve(curTask);
+        elseif curTask == "Wooden Cog" then
+          carve(curTask);
+        elseif curTask == "Flax Comb" then
+          combFlax();
+        elseif curTask == "Hackling Rake" then
+          hacklingRake();
+        elseif curTask == "Oil (Flax Seed)" then
+          flaxOil();
+        elseif curTask == "Weave Canvas" then
+          weave("Canvas");
+        elseif curTask == "Weave Linen" then
+          weave("Linen");
+        elseif curTask == "Recycle Tattered Sail" then
+          weave("TatteredSail");
+        elseif curTask == "Weave Wool Cloth" then
+          weave("Wool");
+        elseif curTask == "Weave Papy Basket" then
+          weave("Basket");
+        elseif curTask == "Weave Silk" then
+          weave("Silk");
+        elseif curTask == "Limestone" then
+          gather("Limestone");
+        elseif curTask == "Dirt" then
+          gather("Dirt");
+        elseif curTask == "Barrel Grinder" then
+          grindMetal();
+        elseif curTask == "Churn Butter" then
+          churnButter();
+        elseif curTask == "Stir Cement" then
+          stirCement();
+        elseif curTask == "Search Rotten Wood" then
+          searchRottenWood();
+        elseif curTask == "Excavate Blocks" then
+          excavateBlocks();
+        elseif curTask == "Push Pyramid" then
+          pyramidPush();
+        elseif curTask == "Tap Rods" then
+          tapRods();
+        elseif curTask == "Wet Paper" then
+          wetPaper();
+        elseif curTask == "Spore Paper" then
+          sporePaper();
+        else
+          clickText(findText(textLookup[curTask]));
+        end
+        statTimer[i] = lsGetTimer();
+        didTask = true;
+      end
     end
+  end
+  if didTask == false then
+    lsPrint(10, 10, 0, 0.7, 0.7, 0xB0B0B0ff, "Waiting for task to be ready.");
+  if autoOnion and not buffed then
+    lsPrint(10, 30, 0, 0.7, 0.7, 0xB0B0B0ff, "Auto eat: No pinned Onions found!");
+  end
+
+      if lsButtonText(lsScreenX - 110, lsScreenY - 30, z, 100, 0xFFFFFFff,
+          "End script") then
+          error "Clicked End Script button";
+      end
+
+      lsDoFrame();
+  else
+      srReadScreen();
+      --closeEmptyAndErrorWindows();
+      closePopUp();
+      lsSleep(per_tick);
+  end
 end
 
 function closePopUp()
