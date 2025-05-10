@@ -279,7 +279,7 @@ function edit_config_screen(config)
     done_button_text = "Back",
     draw_screen = function()
       current_y = 10
-      drawTextUsingCurrent("Veg Janitor Settings - preset = " .. config.name .. " :", GREEN)
+      drawTextUsingCurrent("Veg Janitor Settings : " .. config.name, GREEN)
       sub_screen {
         config = config,
         done_button_text = "Back",
@@ -473,7 +473,7 @@ function edit_config_screen(config)
         end
       }
       config.click_delay = drawNumberEditBox("click_delay", "What should the click delay be? ", 100)
-      current_y = current_y + 30
+      current_y = current_y + 10
       config.show_debug_images = CheckBox(X_PADDING, current_y, 10, WHITE, " Show Debug Images?", config.show_debug_images)
       current_y = current_y + 100
       config.debug_log_level = dropdown("debug_log_level", config.debug_log_level or INFO, LOG_LEVEL_TO_NAME, "Debug Log Level:", LOG_LEVEL_TO_LEVEL)
@@ -531,7 +531,7 @@ function button(text, colour, right_align)
   if right_align then
     current_y = current_y - 30
   end
-  local x = right_align and (lsScreenX - (button_widths[text] - 50)) or 5
+  local x = right_align and (lsScreenX - (button_widths[text] + 5)) or 5
   local result = lsButtonText(x, current_y, 1, button_widths[text], colour or WHITE, text)
   current_y = current_y + 30
   return result
@@ -542,7 +542,6 @@ function config_attribute_setter(config)
 end
 
 function config_selector(starting_config)
-  drawTextUsingCurrent("Select configuration to use:", GREEN)
   local config_string = readSetting(CONFIG_FILE_VERSION .. "config_names") or CONFIG_FILE_VERSION .. "default"
   local setting_config = readSetting(CONFIG_FILE_VERSION .. "current_config") or CONFIG_FILE_VERSION .. "default"
   local configs = config_string:split(",")
@@ -564,12 +563,13 @@ function config_selector(starting_config)
       config = starting_config,
       done_button_text = "Back",
       draw_screen = function()
-        local new_config_name = drawEditBox("config_name", "Name", "", false)
+        current_y = current_y + 5
+        local new_config_name = drawEditBox("config_name", "Name", "", false, "200")
         local valid = new_config_name and new_config_name ~= ""
         for _, c in ipairs(configs) do
           valid = valid and c ~= new_config_name
         end
-        local create = button(new_config_name and ("Create with name: " .. new_config_name) or "Enter a valid config name", valid and GREEN or RED)
+        local create = button(new_config_name and ("Create: " .. new_config_name) or "Enter a valid config name", valid and GREEN or RED)
         if valid and create then
           config_string = config_string .. "," .. new_config_name
           writeSetting(CONFIG_FILE_VERSION .. "config_names", config_string)
@@ -785,7 +785,8 @@ function dropdown(key, starting_index, values, text, return_values)
     end
   end
   local before = dropdown_indexs[key]
-  dropdown_indexs[key] = lsDropdown(key, X_PADDING, current_y, 10, lsScreenX + 45, dropdown_indexs[key] or starting_index, values)
+  dropdown_indexs[key] = lsDropdown(key, X_PADDING, current_y, 10, lsScreenX + 50, dropdown_indexs[key] or starting_index, values)
+  lsSetCamera(0, 0, lsScreenX * 1.0, lsScreenY * 1.0);
   current_y = current_y + 30
   return_values = return_values or values
   return return_values[dropdown_indexs[key]], before ~= dropdown_indexs[key]
@@ -852,9 +853,11 @@ function getUserParams()
       edit_config = false
     elseif not got_user_params then
       config = config_selector(config)
-      edit_config = button("Edit Current Config", ORANGE, true)
-      current_y = current_y + 20
+      edit_config = button("Edit Config", ORANGE, true)
+      current_y = current_y + 25
+      lsDrawLine(5,lsScreenY-260,lsScreenX-5,lsScreenY-260,100,2,1,0xB0B0B0ff);
       drawTextUsingCurrent("Run Options:", GREEN)
+      current_y = current_y + 25
       config.selected_seed_type = dropdown("seed_type_selector", config.selected_seed_type or 1, TYPES, "Plant type")
       local plants = {}
       for n, plant in pairs(config.plants[config.selected_seed_type]) do
@@ -887,35 +890,34 @@ function getUserParams()
       if #display_seed_names > 0 then
         config.seed_name = dropdown("seed_name", starting_index, display_seed_names, "Seed name", filtered_plants)
       end
+      current_y = current_y - 45
       config.num_plants = drawNumberEditBox("num_plants", "How many to plant per run? ", 4)
       config.num_runs = drawNumberEditBox("num_runs", "How many runs? ", 20)
       local invalid_key = config_is_invalid(config)
+      lsDrawLine(5,lsScreenY-37,lsScreenX-5,lsScreenY-37,100,2,1,0xB0B0B0ff);
 
       if not invalid_key then
         got_user_params = drawBottomButton(lsScreenX - 5, "Next step", GREEN)
-      else
-        drawWrappedText("Config value " .. invalid_key .. " is invalid, please edit config and fix it.", RED, X_PADDING, lsScreenY - 20)
       end
     else
       local invalid_key = config_is_invalid(config)
 
       if not invalid_key then
 
-        lsPrintWrapped(5, current_y, 10, lsGetWindowSize()[0]-5, 0.7, 0.7, GREEN, "IN-GAME SETUP INSTRUCTIONS:");
         if not flashing_colour then
           flashing_colour = flashColors[flashIdx+1];
           last_flash = lsGetTimer()
         end
-        current_y = current_y + 10 + lsPrintWrapped(5, current_y+20, 10, lsGetWindowSize()[0]-5, 0.7, 0.7, flashing_colour, "Please read AND re-read these instructions,\nTHEY ARE VERY VERY VERY IMPORTANT!!");
+        lsPrintWrapped(5, current_y, 10, lsGetWindowSize()[0]-5, 0.7, 0.7, flashing_colour, "Please read AND re-read these instructions,\nTHEY ARE VERY VERY VERY IMPORTANT!!");
         if lsGetTimer() - last_flash > 500 then
           flashIdx = (flashIdx+1)%3;
           flashing_colour = flashColors[flashIdx+1];
           last_flash = lsGetTimer()
         end
 
-        lsScrollAreaBegin("warningScroll", 5, current_y+15, z, windowRight-10, windowBottom-160);
+        lsScrollAreaBegin("warningScroll", 5, current_y+40, z, windowRight-10, windowBottom-170);
           for i=1, #WARNING do
-            current_y = current_y + lsPrintWrapped(X_PADDING, current_y-40, 10, windowRight-35, 0.6, 0.6, WHITE, WARNING[i])
+            current_y = current_y + lsPrintWrapped(X_PADDING, current_y, 10, windowRight-35, 0.6, 0.6, WHITE, WARNING[i])
           end
         lsScrollAreaEnd(current_y);
     
@@ -924,13 +926,17 @@ function getUserParams()
         local timings = config.plants[seed_type][seed_name].stage_advance_timings
         local plant_is_calibrated = timings and timings.calibrated
         if not plant_is_calibrated then
-          drawWrappedText("Please click calibrate to automatically calculate stage watering times for " .. seed_type .. ". If you instead want to use the timings manually set in your config just click start.", GREEN, X_PADDING, lsScreenY - 87)
-          calibration_mode = lsButtonText(5, lsScreenY - 30, z, 100, GREEN, "Calibrate")
-          is_done = lsButtonText(110, lsScreenY - 30, z, 80, ORANGE, "Start")
+          drawWrappedText("Calibrate to calculate stage timings for " .. seed_type .. " or set the timings manually in your config and click start.", GREEN, X_PADDING, lsScreenY - 115)
+          lsDrawLine(5,lsScreenY-77,lsScreenX-5,lsScreenY-77,100,2,1,0xB0B0B0ff);
+          calibration_mode = lsButtonText(5, lsScreenY - 70, z, 295, GREEN, "Calibrate")
+          lsDrawLine(5,lsScreenY-37,lsScreenX-5,lsScreenY-37,100,2,1,0xB0B0B0ff);
+          is_done = lsButtonText(5, lsScreenY - 30, z, 80, ORANGE, "Start")
         else
-          drawWrappedText("Please re-run the calibration often especially if the macro is miss-timing often and over or under watering.", GREEN, X_PADDING, lsScreenY - 100)
-          is_done = lsButtonText(10, lsScreenY - 30, z, 80, GREEN, "Start")
-          calibration_mode = lsButtonText(110, lsScreenY - 30, z, 200, YELLOW, "Calibrate More")
+          drawWrappedText("Please re-run the calibration often especially if the macro is miss-timing often and over or under watering.", GREEN, X_PADDING, lsScreenY - 110)
+          lsDrawLine(5,lsScreenY-77,lsScreenX-5,lsScreenY-77,100,2,1,0xB0B0B0ff);
+          calibration_mode = lsButtonText(5, lsScreenY - 70, z, 295, YELLOW, "Refresh Calibration")
+          lsDrawLine(5,lsScreenY-37,lsScreenX-5,lsScreenY-37,100,2,1,0xB0B0B0ff);
+          is_done = lsButtonText(5, lsScreenY - 30, z, 80, GREEN, "Start")
         end
       else
         drawWrappedText("Config value " .. invalid_key .. " is invalid, please edit config and fix it.", RED, X_PADDING, lsScreenY - 60)
