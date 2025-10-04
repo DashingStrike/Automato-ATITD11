@@ -1031,7 +1031,7 @@ end
 
 function downArrow()
   srReadScreen();
-  downPin = srFindImage("Fishing/Menu_DownArrow.png");
+  downPin = srFindImage("menu_DownArrow.png");
     if downPin then
       srClickMouseNoMove(downPin[0]+8,downPin[1]+5);
       lsSleep(100);

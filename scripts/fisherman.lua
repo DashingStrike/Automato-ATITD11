@@ -329,11 +329,11 @@ function fishingTick()
 				end
 			end
 			srReadScreen();
-			local fishIcon = findImage("Fishing/fishicon.png");
+			local fishIcon = findImage("fishing/fishicon.png");
 			while not fishIcon do
 				sleepWithStatus(2000, "You are not in range of water...");
 				srReadScreen();
-				fishIcon = findImage("Fishing/fishicon.png");
+				fishIcon = findImage("fishing/fishicon.png");
 			end
 			logLure();
 			srClickMouseNoMove(fishIcon[0], fishIcon[1]);

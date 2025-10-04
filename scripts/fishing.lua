@@ -592,7 +592,7 @@ function doit()
     while 1 do
         checkBreak();
         srReadScreen();
-        cast = srFindImage("Fishing/fishicon.png", 100);
+        cast = srFindImage("fishing/fishicon.png", 100);
         OK = srFindImage("OK.png");
         if ignoreOK then
             OK = nil; -- We got a popup box while examining isis ship pieces recently, prevent potential reindexing lures (No lure found, refreshing.. Below)
