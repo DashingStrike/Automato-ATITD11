@@ -31,13 +31,13 @@ last_tick = "";
 item_priority = {"GlassMakeSheet.png", "GlassMakeRod.png", "GlassMakeWine.png",
                  "GlassMakePipe.png", "GlassMakeJar.png","GlassMakeTorch.png",
                  "GlassMakeScytheBlade.png", "GlassMakeFineRod.png", "GlassMakeFinePipe.png",
-                 "GlassMakeGoldenSigil.png","GlassMakeShabtiDoll.png"};
+                 "GlassMakeGoldenSigil.png","GlassMakeShabtiDoll.png","GlassMakeSampleTube.png"};
 
 item_name = {["GlassMakeSheet.png"] = "Sheet", ["GlassMakeRod.png"] = "Rod", ["GlassMakeWine.png"] = "Wine",
              ["GlassMakePipe.png"] = "Pipe", ["GlassMakeJar.png"] = "Jar", ["GlassMakeTorch.png"] = "Torch",
              ["GlassMakeScytheBlade.png"] = "Scythe Blade", ["GlassMakeFineRod.png"] = "Fine Rod",
              ["GlassMakeFinePipe.png"] = "Fine Pipe", ["GlassMakeGoldenSigil.png"] = "Golden Sigil",
-			 ["GlassMakeShabtiDoll.png"] = "Shabti Doll"};
+			 ["GlassMakeShabtiDoll.png"] = "Shabti Doll", ["GlassMakeSampleTube.png"] = "Sample Tubes"};
 ----------------------------------------
 
 function ocrNumber(x, y)
