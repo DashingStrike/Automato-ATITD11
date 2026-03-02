@@ -65,6 +65,7 @@ function doit()
     for index=1, num_workers do
       pos = srFindImageInRange("quarry/Quarry-WorkTheQuarry.png", bounds[0]+5, bounds[1]+5, 250, 200, tolerance);
         if not pos then
+          lsPlaySound("Complete.wav");
           error ("Could not find 'Work The Quarry' #" .. index);
         end
       positions[index] = pos;
@@ -210,3 +211,4 @@ function closePopUp()
 	    end
   end
 end
+
