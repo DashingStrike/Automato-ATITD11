@@ -2,6 +2,7 @@ dofile("common.inc");
 dofile("settings.inc");
 
 local gatherCounter = 0
+local errorDuringCycle=false;
 
 local fuelList = {"Coal", "Charcoal", "Petroleum"};
 local metalList = {"Silver", "Aluminum"};
@@ -202,7 +203,11 @@ local items = {
     ["Wooden Pestle"] = {
       ["stat"] = "FOC",
       ["workFn"] = function () findAndClickText("Wooden Pestle") end
-    }
+    },
+	["Low Relief Carving"] = {
+      ["stat"] = "FOC",
+      ["workFn"] = function () findAndClickText("Low Relief Carving") end
+    },
 };
 local selectedTasks = {};
 
@@ -417,6 +422,19 @@ function getClickActions()
         reloadLoom = readSetting("reloadLoom",reloadLoom);
         reloadLoom = lsCheckBox(5, y-30, z, 0xFFFFFFff, " Automatically reload Loom", reloadLoom);
         writeSetting("reloadLoom",reloadLoom);
+	
+	if reloadLoom then
+		y = y + 35;
+		reloadOnlyOnEmptyError = readSetting("reloadOnlyOnEmptyError",reloadOnlyOnEmptyError);
+		reloadOnlyOnEmptyError = lsCheckBox(5, y-30, z, 0xFFFFFFff, " Load Loom only on empty error", reloadOnlyOnEmptyError);
+		writeSetting("reloadOnlyOnEmptyError",reloadOnlyOnEmptyError);	
+		if reloadOnlyOnEmptyError then
+			y = y + 35;
+			reloadMax = readSetting("reloadMax",reloadMax);
+			reloadMax = lsCheckBox(5, y-30, z, 0xFFFFFFff, " Reload Max", reloadMax);
+			writeSetting("reloadMax",reloadMax);	
+		end
+	end
       end
 
       if task.id == "Push Pyramid" then
@@ -481,7 +499,7 @@ function weave(clothType)
         srcQty = "60";
     elseif clothType == "Linen" then
         srcType = "Thread";
-        srcQty = "400";
+        srcQty = "400";  -- This can be 300 with talents
     elseif clothType == "Basket" then
         srcType = "Papyrus";
         srcQty = "200";
@@ -508,19 +526,24 @@ function weave(clothType)
     end
 
     -- reload the loom
-    if reloadLoom then
-      if not recycleSail then
-        loadImage = srFindImage("statclicks/with_" .. srcType .. ".png");
-        if loadImage ~= nil then
-          safeClick(loadImage[0],loadImage[1]);
-          local t = waitForImage("statclicks/how_much.png", 2000);
-            if t ~= nil then
-              srCharEvent(srcQty .. "\n");
-            end
-          closePopUp();
-          lsSleep(100); -- allow loom to not be busy
-        end
-      end
+    if reloadLoom and (not reloadOnlyOnEmptyError or errorDuringCycle) then
+	errorDuringCycle = false;
+	if not recycleSail then
+		loadImage = srFindImage("statclicks/with_" .. srcType .. ".png");
+		if loadImage ~= nil then
+			safeClick(loadImage[0],loadImage[1]);
+			local t = waitForImage("statclicks/how_much.png", 2000);
+			if t ~= nil then
+				if reloadMax then
+					clickMax();
+				else
+					srCharEvent(srcQty .. "\n");
+				end
+			end
+			closePopUp();
+			lsSleep(100); -- allow loom to not be busy
+		end
+	end
     end
 
     srReadScreen();
@@ -1018,6 +1041,7 @@ function closePopUp()
       ok = srFindImage("OK.png");
       if ok then
         srClickMouseNoMove(ok[0],ok[1]);
+	errorDuringCycle=true;
       else
           break;
       end
