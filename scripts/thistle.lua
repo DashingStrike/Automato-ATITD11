@@ -322,10 +322,12 @@ function clickAll(image_name, message, up)
 		if up then
 			for i=#buttons, 1, -1  do
 				srClickMouseNoMove(buttons[i][0]+5, buttons[i][1]+3);
+				checkBreak(); -- Prevent locking up in event of an error
 			end
 		else
 			for i=1, #buttons  do
 				srClickMouseNoMove(buttons[i][0]+5, buttons[i][1]+3);
+				checkBreak(); -- Prevent locking up in event of an error
 			end
 		end
 		lsSleep(100);
@@ -367,6 +369,7 @@ function clickAllComplex(image_names, message)
 		-- click all buttons
 		for j=1, #image_names do
 			srClickMouseNoMove(window_locs[i][0] + dpos[j][0] + 5, window_locs[i][1] + dpos[j][1] + 5);
+			checkBreak(); -- Prevent locking up in event of an error
 		end
 		first = nil;
 	end
@@ -383,9 +386,11 @@ function clickAllComplex(image_names, message)
 			end
 		setWaitSpot(window_locs[i][0], window_locs[i][1]);
 		srClickMouseNoMove(window_locs[i][0], window_locs[i][1] + cascade_offset);
+		checkBreak(); -- Prevent locking up in event of an error
 		waitForChange();
 	end
 	lsSleep(100);
+	checkBreak(); -- Prevent locking up in event of an error
 end
 
 -- Initialize last_mon
