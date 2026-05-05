@@ -110,6 +110,10 @@ local items = {
       ["stat"] = "CON",
       ["workFn"] = function() clickText(findText("Ink")) end
     },
+    ["Arsenic"] = {
+      ["stat"] = "CON",
+      ["workFn"] = function() clickText(findText("Lead Ore to Arsenic")) end
+    },
 
   --focus
     ["Barrel Tap"] = {
@@ -204,13 +208,17 @@ local items = {
       ["stat"] = "FOC",
       ["workFn"] = function () findAndClickText("Wooden Pestle") end
     },
-	["Low Relief Carving"] = {
-      ["stat"] = "FOC",
-      ["workFn"] = function () findAndClickText("Low Relief Carving") end
-    },
+		["Relief Carving - Low"] = {
+			["stat"] = "FOC",
+			["workFn"] = function () findAndClickText("Low Relief Carving") end
+		},
+		["Relief Carving - High"] = { 
+			["stat"] = "FOC", 
+			["workFn"] = function () reliefCarving() end 
+		},
 };
-local selectedTasks = {};
 
+local selectedTasks = {};
 
 -- This is built in to the items as a delay key
 --local lagBound = {};
@@ -239,17 +247,19 @@ local askText = singleLine([[
 ]]
 );
 
+local done = false;
+
 function doit()
   filterTasksForDropdowns();
   getClickActions();
   local mousePos = askForWindow(askText);
   windowSize = srGetWindowSize();
-  done = false;
-    while done == false do
-      doTasks();
-      checkBreak();
-      lsSleep(80);
-    end
+
+  while done == false do
+    doTasks();
+    checkBreak();
+    lsSleep(80);
+  end
 end
 
 function filterTasksForDropdowns()
@@ -330,7 +340,7 @@ function doTasks()
         error "Clicked End Script button";
     end
 
-      lsDoFrame();
+    lsDoFrame();
   else
       srReadScreen();
       --closeEmptyAndErrorWindows();
@@ -366,6 +376,8 @@ function getClickActions()
         goto continue;
       end
 
+      local task = items[selectedTasks[i]];
+			
       if statNames[i] == "endurance" then
         y = y + 15;
         autoOnion = readSetting("autoOnion",autoOnion);
@@ -380,6 +392,17 @@ function getClickActions()
           y = y + 25;
           lsPrintWrapped(15, y, 0, lsScreenX - 20, 1.0, 1.0, 0xFFFF80ff, "Pin the 'Grilled Onion' window.");
         end
+				
+				
+      if task.id == "Excavate Blocks" then
+				y = y + 15;
+        ignorePyramidBlock = readSetting("ignorePyramidBlock",ignorePyramidBlock);
+        ignorePyramidBlock = lsCheckBox(5, y, z, 0xFFFFFFff, " Ignore Pyramid Blocks", ignorePyramidBlock);
+        writeSetting("ignorePyramidBlock",ignorePyramidBlock);
+				y = y + 15;
+      end			
+
+			
         lsPrint(5, y+15, 10, scale, scale, 0xffff40ff,
         " - - - - - - - - - - - - - - - - - - - - - - - - - - -")
         y = y + 40;
@@ -396,13 +419,19 @@ function getClickActions()
 
           y = y + 25;
           lsPrintWrapped(15, y, 0, lsScreenX - 20, 1.0, 1.0, 0xFFFF80ff, "Pin the 'Grilled Garlic' window.");
+          y = y + 15;
         end
+        
+        y = y + 20
+        abortOnPopup = readSetting("abortOnPopup",abortOnPopup);
+        abortOnPopup = lsCheckBox(5, y-10, z, 0xFFFFFFff, " Abort on Popup", abortOnPopup);
+        writeSetting("abortOnPopup",abortOnPopup);
+
         lsPrint(5, y+15, 10, scale, scale, 0xffff40ff,
         " - - - - - - - - - - - - - - - - - - - - - - - - - - -")
         y = y + 40;
       end
 
-      local task = items[selectedTasks[i]];
       if task.id == "Stir Cement" then
         y = y + 35;
         stirMaster = readSetting("stirMaster",stirMaster);
@@ -932,6 +961,20 @@ function tapRods()
   end
 end
 
+function reliefCarving()
+	srReadScreen();
+	
+	dexReady = not srFindImage("stats/dexterity.png");
+
+	if dexReady then
+		findAndClickText("Carve a high relief") 
+		findAndClickText("Carve a sunken relief")
+
+		lsSleep(100)
+		refreshWindows();
+	end
+end
+
 function excavateBlocks()
   local window = findAllText("Pyramid Block");
   if window then
@@ -940,10 +983,21 @@ function excavateBlocks()
     end
     srReadScreen();
   end
-  local t = findText("Dig around");
-  if t then
-    clickText(t);
-  end
+	
+	local toothBlock = findAllText("Tooth Limestone Block");
+	if ignorePyramidBlock and #toothBlock > 0 then
+    lsPrint(10, 30, 10, 0.7, 0.7, 0xFFFFFF, "Found Ignored Pyramid Block!");
+		lsPlaySound("error.wav");
+		checkBreak();
+    lsDoFrame();
+    lsSleep(500);		
+	else
+		local t = findText("Dig around");
+		if t then
+			clickText(t);
+		end
+	end
+	
   t = waitForText("Slide a rolling rack", 300);
   if t then
     clickText(t);
@@ -1041,7 +1095,12 @@ function closePopUp()
       ok = srFindImage("OK.png");
       if ok then
         srClickMouseNoMove(ok[0],ok[1]);
-	errorDuringCycle=true;
+        errorDuringCycle=true;
+        
+        if abortOnPopup then
+          lsPlaySound("error.wav");
+          error("Abort on Popup")
+        end
       else
           break;
       end
